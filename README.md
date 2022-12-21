@@ -25,3 +25,29 @@ if need override custom port to passed SERVER_PORT
 4. connect to docker
 
 `docker container exec -ti demo /bin/bash`
+
+# Compile src in docker
+
+1. create Dockerfile
+
+```
+FROM maven:3.8-jdk-11 AS build_step
+RUN mkdir /demo_build
+COPY . /demo_build
+WORKDIR /demo_build
+RUN mvn clean package -DskipTests
+
+FROM adoptopenjdk/openjdk11:jdk-11.0.11_9-alpine-slim
+RUN mkdir /demo
+COPY --from=build_step /demo_build/target/demo-0.0.1-SNAPSHOT.jar /demo
+WORKDIR /demo
+CMD ["java", "-jar", "demo-0.0.1-SNAPSHOT.jar"]
+```
+
+2. compile Dockerfile
+
+`docker build -t demo .`
+
+3. run docker 
+
+`docker run -d --name demo -p 8080:8080 demo`
