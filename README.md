@@ -1,6 +1,14 @@
-# Simple move spring boot application to docker
+# Simple move spring boot application jar to docker
 
-1. create Dockerfile
+1. need to manually compile our application
+
+`mvn clean package -DskipTests`
+
+our file should be created:
+
+`target/demo-0.0.1-SNAPSHOT.jar`
+
+2. create Dockerfile
 
 ```
 FROM openjdk:11
@@ -10,19 +18,23 @@ WORKDIR /demo
 ENTRYPOINT ["java", "-jar", "demo-0.0.1-SNAPSHOT.jar"]
 ```
 
-2. compile Dockerfile
+3. compile Dockerfile
 
 `docker build -t demo .`
 
-3. run docker 
+4. run docker 
 
 `docker run -d --name demo -p 8080:8080 demo`
 
 if need override custom port to passed SERVER_PORT
 
-`docker run -d -e SERVER_PORT=8081 -p 8081:8081 demo`
+`docker run -d -e SERVER_PORT=8080 -p 8081:8080 demo`
 
-4. connect to docker
+5. check in browser 
+
+`http://localhost:8080`
+
+6. connect to docker
 
 `docker container exec -ti demo /bin/bash`
 
@@ -52,13 +64,39 @@ CMD ["java", "-jar", "demo-0.0.1-SNAPSHOT.jar"]
 
 `docker run -d --name demo -p 8080:8080 demo`
 
+4. check in browser 
+
+`http://localhost:8080`
+
 # Run application with database in docker compose
 
-create dirs with permission write:
+1. need to manually compile our application
+
+`mvn clean package -DskipTests`
+
+our file should be created:
+
+`target/demo-0.0.1-SNAPSHOT.jar`
+
+2. create Dockerfile
+
+```
+FROM openjdk:11
+RUN mkdir /demo
+COPY target/demo-0.0.1-SNAPSHOT.jar /demo/demo-0.0.1-SNAPSHOT.jar
+WORKDIR /demo
+ENTRYPOINT ["java", "-jar", "demo-0.0.1-SNAPSHOT.jar"]
+```
+
+3. compile Dockerfile
+
+`docker build -t demo .`
+
+4. create dirs with permission write:
 * db
 * log
 
-Create docker-compose.yml:
+4. Create docker-compose.yml
 
 ```
 version: "3.1"
@@ -92,10 +130,14 @@ networks:
     driver: bridge
 ```
 
-run 
+5. run 
 
 `docker-compose up -d `
 
-check existing mysql, connect:
+6. check existing mysql, connect:
 
 `mysql -uroot -h127.0.0.1 -P3335 -p`
+
+7. check in browser 
+
+`http://localhost:8086`
