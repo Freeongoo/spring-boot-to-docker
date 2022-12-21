@@ -51,3 +51,51 @@ CMD ["java", "-jar", "demo-0.0.1-SNAPSHOT.jar"]
 3. run docker 
 
 `docker run -d --name demo -p 8080:8080 demo`
+
+# Run application with database in docker compose
+
+create dirs with permission write:
+* db
+* log
+
+Create docker-compose.yml:
+
+```
+version: "3.1"
+services:
+  mysql:
+    container_name: mysql8
+    command: mysqld --default-authentication-plugin=mysql_native_password
+    image: mysql:8
+    volumes:
+      - ./db:/var/lib/mysql
+    restart: always
+    ports:
+      - "3335:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    networks:
+      - landemo
+  demo:
+    container_name: demo
+    image: demo
+    volumes:
+      - ./log:/demo/log
+    ports:
+      - "8086:8081"
+    environment:
+      SERVER_PORT: 8081
+    networks:
+      - landemo
+networks:
+  landemo:
+    driver: bridge
+```
+
+run 
+
+`docker-compose up -d `
+
+check existing mysql, connect:
+
+`mysql -uroot -h127.0.0.1 -P3335 -p`
