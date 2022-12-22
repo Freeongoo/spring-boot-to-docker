@@ -28,7 +28,7 @@ ENTRYPOINT ["java", "-jar", "demo-0.0.1-SNAPSHOT.jar"]
 
 if need override custom port to passed SERVER_PORT
 
-`docker run -d -e SERVER_PORT=8080 -p 8081:8080 demo`
+`docker run -d -e SERVER_PORT=8081 -p 8081:8081 demo`
 
 5. check in browser 
 
@@ -141,3 +141,32 @@ networks:
 7. check in browser 
 
 `http://localhost:8086`
+
+# Run application with external application.properties
+
+1. Create Dockerfile
+
+```
+FROM openjdk:11
+RUN mkdir /demo
+COPY target/demo-0.0.1-SNAPSHOT.jar /demo/demo-0.0.1-SNAPSHOT.jar
+WORKDIR /demo
+ENTRYPOINT ["java", "-jar", "demo-0.0.1-SNAPSHOT.jar", "--spring.config.location=resources/application.properties"]
+```
+
+2. Create docker-compose.yml
+   
+```
+version: "3.1"
+services:
+ demo:
+   container_name: demo
+   image: demo
+   volumes:
+     - ./log:/demo/log
+     - ./resources:/demo/resources
+   ports:
+     - "8086:8081"
+   environment:
+     SERVER_PORT: 8081
+```
